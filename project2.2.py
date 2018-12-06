@@ -10,6 +10,11 @@ class Problem(csp.CSP):
         T = []; R = []; S = []; W = []; A = []
         ip = []
 
+        # Student and course dictionary; Key=Course and Value=list of students participating
+        student_dict = {}
+        for i in range(0, len(A)):
+            student_dict.setdefault(A[i][1], []).append(A[i][0])
+
 
         for line in self.file:
             lines.append(line)
@@ -59,7 +64,7 @@ class Problem(csp.CSP):
         # Set variables
         vars = W
 
-        # Set the domain list which is all the possible combinations of T x R
+        # Set the domain list which is all the possible combinations of T x R [{day, time, place}, Doimains = [{day, time, place}, {day, time, place}, ...]
         domain_list = []
         for i in range(0, len(T)):
             for j in range(0, len(R)):
@@ -79,8 +84,8 @@ class Problem(csp.CSP):
         # Sketch the constraints
 
         def const1(A,a,B,b):		#Class cant happen at the same time same day same place ({A,B} = variables, {a,b} = domains)
-            if (a[0][0] == b[0][0]):						#if same day
-                if (a[0][1] == b[0][1] and a[1] == b[1]):	#if same time and same room
+            if (a[0] == b[0]):						      #if same day
+                if (a[0] == b[0] and a[1] == b[1]):	    #if same time and same room
                     return False
                 else:
                     return True
@@ -90,9 +95,9 @@ class Problem(csp.CSP):
 
         def const2(A,a,B,b):		#Class cant have two (or more) theoretical or practical lessons within one day
 
-            if(a[0][0] == b[0][0]):				#if same day
-                if(a[2][0] == b[2][0]):			#if same subject
-                    if(a[2][1] == b[2][1]):	 	#if same class type
+            if(A[0] == B[0]):				#if same subject
+                if(A[1] == B[1]):			#if same type of class
+                    if(a[0] == b[0]):	 	#if same day
                         return False
                     else:
                         return True
@@ -102,30 +107,22 @@ class Problem(csp.CSP):
                 return True
 
         def const3(A,a,B,b):		#Two classes cant have the same student type at the same time
-            if(a[0][0] == b[0][0]):				#if same day
-                if(a[0][1] == b[0][1]): 		#if same time
-                    if(a[3][1] == b[3][1]):		#if same student type
-                        return False
-                    else:
-                        return True
+            if(a[0] == b[0]):				                #if same day
+                if(a[1] == b[1]): 		                    #if same time
+                    for i in student_dict[B[0]]:            # Go through the students in this course
+                        for j in student_dict[A[0]]:        # Go through the students in this course
+                           if(i == j):		                #if same student types overlaps in these courses
+                                return False
+                        
                 else:
                     return True
             else:
                 return True
 
-        def const4(A,a,B,b):		#Subject has to be the same everywhere in the class ###!!! Can A and B be the same var???
-            if(A == B):  								#if both are same var
-                if(a[2][0] == a[3][1]):					#if A (and B) is using only one kind of subject
-                    return True
-                else:
-                    return False
-            else:
-                return False
-
-        def const5(A,a,B,b):		#Class type (TH or PR) can appear only certain amounts a week in increasing order
-            if(a[2][0] == b[2][0]):									#if same subject
-                if(a[2][1] == b[2][1]):								#if same class type
-                    if(a[2][2] < b[2][2] and a[0][0] < b[0][0]):		#if class number is increasing and if days are also increasing
+        def const4(A,a,B,b):		#Class type (TH or PR) can appear only certain amounts a week in increasing order
+            if(A[0] == B[0]):	      				         #if same subject
+                if(A[1] == B[1]):               	       #if same class type
+                    if(A[2] < B[2] and a[0] < b[0]):        #if class number is increasing and if days are also increasing
                         return True
                     else:
                         return False
