@@ -35,7 +35,7 @@ class Problem(csp.CSP):
                         t_tuple[0] = 4
                     elif(t_tuple[0] == 'Fri'):
                         t_tuple[0] = 5
-                    T.append((t_tuple))
+                    T.append(tuple(t_tuple))
 
             elif(ip[0] == 'R'):	#if R
                 # Remove first R
@@ -52,12 +52,12 @@ class Problem(csp.CSP):
                 for i in ip[1:]:
                     w_tuple = i.split(',')
                     w_tuple[2] = int(w_tuple[2]) #changing from strign to int so that it is easier to compare
-                    W.append((w_tuple))
+                    W.append(tuple(w_tuple))
 
             elif(ip[0] == 'A'):	#if A
                 # change values to tuples of two
                 for i in ip[1:]:
-                    a_tuple = i.split(',')
+                    a_tuple = tuple(i.split(','))
                     A.append((a_tuple))
 
 
